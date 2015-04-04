@@ -18,8 +18,11 @@ package pl.themolka.cmds;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import pl.themolka.cmds.command.Commands;
 import pl.themolka.cmds.internal.CmdsCommand;
+import pl.themolka.cmds.internal.Listeners;
 
 /**
  *
@@ -46,7 +49,8 @@ public class Settings {
         messages.putAll(values);
     }
     
-    public static void setup() {
+    public static void setup(Plugin plugin) {
+        Validate.notNull(plugin, "plugin can not be null");
         if (messages != null) {
             return;
         }
@@ -54,7 +58,8 @@ public class Settings {
         messages = new HashMap<>();
         loadMessages();
         
-        Commands.register(CmdsCommand.class);
+        Bukkit.getPluginManager().registerEvents(new Listeners(), plugin);
+        Commands.register(plugin, CmdsCommand.class);
     }
     
     private static void loadMessages() {

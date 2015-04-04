@@ -25,6 +25,6 @@ import pl.themolka.cmds.Settings;
 public class BukkitPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
-        Settings.setup();
+        Settings.setup(this);
     }
 }

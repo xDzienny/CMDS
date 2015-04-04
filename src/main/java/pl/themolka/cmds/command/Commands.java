@@ -27,6 +27,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import pl.themolka.cmds.Settings;
 
 /**
@@ -88,7 +89,8 @@ public class Commands {
         }
     }
     
-    public static void register(Class<? extends Command> command) {
+    public static void register(Plugin plugin, Class<? extends Command> command) {
+        Validate.notNull(plugin, "plugin can not be null");
         Validate.notNull(command, "command can not be null");
         
         try {
@@ -109,19 +111,19 @@ public class Commands {
             }
             bCommand.setUsage(cmd.getUsage());
             
-            inject(bCommand);
+            inject(bCommand, plugin.getName());
         } catch (InstantiationException | IllegalAccessException ex) {
             Logger.getLogger(Commands.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    private static void inject(org.bukkit.command.Command cmd) {
+    private static void inject(org.bukkit.command.Command cmd, String pluginName) {
         try {
             Field field = Bukkit.getServer().getClass().getDeclaredField("commandMap");
             if (field != null) {
                 field.setAccessible(true);
                 CommandMap map = (CommandMap) field.get(Bukkit.getServer());
-                map.register(cmd.getName(), "CMDS", cmd);
+                map.register(cmd.getName(), pluginName, cmd);
             }
         } catch (NoSuchFieldException
                 | SecurityException

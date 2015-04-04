@@ -39,8 +39,8 @@ public class Command extends CommandOptions implements Executable {
     }
     
     @Override
-    public List<String> completer(CommandSender sender, String lavel, String[] args) {
-        return new ArrayList<>();
+    public List<String> completer(CommandSender sender, String label, String[] args) {
+        return null;
     }
     
     @Override
