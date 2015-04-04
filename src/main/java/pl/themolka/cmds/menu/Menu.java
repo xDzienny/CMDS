@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 /**
@@ -40,7 +41,7 @@ public abstract class Menu implements IMenuListener {
     
     public Menu(String name, int rows) {
         Validate.notNull(name, "name can not be null");
-        Validate.isTrue(rows <= 0, "rows can not be zero or be negative");
+        Validate.isTrue(rows > 0, "rows can not be zero or be negative");
         this.id = UUID.randomUUID();
         this.name = name;
         this.slots = rows * 9;
@@ -82,6 +83,13 @@ public abstract class Menu implements IMenuListener {
     
     public static List<Menu> getRegistered() {
         return menus;
+    }
+    
+    public static void open(Menu menu, Player player) {
+        Validate.notNull(menu, "menu can not be null");
+        Validate.notNull(player, "player can not be null");
+        menu.onCreate(player);
+        player.openInventory(menu.getBukkit());
     }
     
     public static void register(Menu menu) {

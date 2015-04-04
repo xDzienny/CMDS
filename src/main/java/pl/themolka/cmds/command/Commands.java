@@ -89,31 +89,33 @@ public class Commands {
         }
     }
     
-    public static void register(Plugin plugin, Class<? extends Command> command) {
+    public static void register(Plugin plugin, Class<? extends Command>... command) {
         Validate.notNull(plugin, "plugin can not be null");
         Validate.notNull(command, "command can not be null");
         
-        try {
-            Command cmd = command.newInstance();
-            
-            for (String alias : cmd.getAliases()) {
-                if (!commands.containsKey(alias.toLowerCase())) {
-                    commands.put(alias.toLowerCase(), cmd);
+        for (Class<? extends Command> cmdClass : command) {
+            try {
+                Command cmd = cmdClass.newInstance();
+                
+                for (String alias : cmd.getAliases()) {
+                    if (!commands.containsKey(alias.toLowerCase())) {
+                        commands.put(alias.toLowerCase(), cmd);
+                    }
                 }
+                
+                org.bukkit.command.Command bCommand = new CommandPerformer(BukkitCommandExecutor.getInstance(), cmd.getName());
+                bCommand.setAliases(Arrays.asList(cmd.getAliases()));
+                bCommand.setDescription(cmd.getDescription());
+                bCommand.setLabel(cmd.getName());
+                if (cmd.hasPermission()) {
+                    bCommand.setPermission(cmd.getPermission());
+                }
+                bCommand.setUsage(cmd.getUsage());
+                
+                inject(bCommand, plugin.getName());
+            } catch (InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(Commands.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            org.bukkit.command.Command bCommand = new CommandPerformer(BukkitCommandExecutor.getInstance(), cmd.getName());
-            bCommand.setAliases(Arrays.asList(cmd.getAliases()));
-            bCommand.setDescription(cmd.getDescription());
-            bCommand.setLabel(cmd.getName());
-            if (cmd.hasPermission()) {
-                bCommand.setPermission(cmd.getPermission());
-            }
-            bCommand.setUsage(cmd.getUsage());
-            
-            inject(bCommand, plugin.getName());
-        } catch (InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(Commands.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -145,7 +147,7 @@ public class Commands {
         public boolean execute(CommandSender sender, String label, String[] args) {
             return this.executor.onCommand(sender, this, label, args);
         }
-
+        
         @Override
         public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
             return this.executor.onTabComplete(sender, this, alias, args);

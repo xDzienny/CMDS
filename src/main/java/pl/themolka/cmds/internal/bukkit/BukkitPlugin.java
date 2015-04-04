@@ -27,4 +27,9 @@ public class BukkitPlugin extends JavaPlugin {
     public void onEnable() {
         Settings.setup(this);
     }
+    
+    @Override
+    public void onDisable() {
+        Settings.destroy();
+    }
 }

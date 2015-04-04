@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import pl.themolka.cmds.command.Commands;
 import pl.themolka.cmds.internal.CmdsCommand;
@@ -31,6 +32,12 @@ import pl.themolka.cmds.internal.Listeners;
 public class Settings {
     public static final String VERSION = "1.0";
     private static Map<String, String> messages;
+    
+    public static void destroy() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.closeInventory();
+        }
+    }
     
     public static String getMessage(String id) {
         Validate.notNull(id, "id can not be null");

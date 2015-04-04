@@ -1,7 +1,7 @@
 name: CMDS
 version: '${project.version}'
 author: TheMolkaPL
-description: 'Command and other stuff API for Bukkit'
+description: 'Commands and other simple API for Bukkit'
 prefix: 'CMDS'
 load: STARTUP
 main: pl.themolka.cmds.internal.bukkit.BukkitPlugin

@@ -25,5 +25,5 @@ import org.bukkit.event.inventory.ClickType;
 public interface IMenuListener {
     void onClick(Player player, int slot, ClickType type);
     
-    void onCreate();
+    void onCreate(Player player);
 }
