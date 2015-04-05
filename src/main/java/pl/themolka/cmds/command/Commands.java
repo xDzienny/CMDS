@@ -55,7 +55,11 @@ public class Commands {
         Command cmd = getCommand(command);
         if (cmd != null) {
             try {
-                cmd.handle(sender, command.toLowerCase(), args);
+                if (!cmd.hasPermission() || sender.hasPermission(cmd.getPermission())) {
+                    cmd.handle(sender, command.toLowerCase(), args);
+                } else {
+                    throw new PermissionException();
+                }
             } catch (Exception ex) {
                 if (ex instanceof UsageException) {
                     if (ex.getMessage() != null) {
