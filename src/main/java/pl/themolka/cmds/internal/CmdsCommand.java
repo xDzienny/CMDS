@@ -19,6 +19,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import pl.themolka.cmds.Settings;
 import pl.themolka.cmds.command.Command;
+import pl.themolka.cmds.command.Commands;
 
 /**
  *
@@ -32,19 +33,35 @@ public class CmdsCommand extends Command {
     public CmdsCommand() {
         super(new String[] {"cmds"});
         super.setDescription("General information about the CMDS library for Bukkit");
+        super.setUsage("[list]");
     }
     
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ChatColor.YELLOW + "======" + ChatColor.DARK_PURPLE + "=== CMDS ===" + ChatColor.YELLOW + "======");
-        sender.sendMessage(ChatColor.YELLOW + CmdsCommand.DESCRIPTION);
-        sender.sendMessage(ChatColor.GOLD + "Version: " + ChatColor.GREEN + this.getVersion());
-        sender.sendMessage(ChatColor.GOLD + "Authors: " + ChatColor.GREEN + "TheMolkaPL");
-        sender.sendMessage(ChatColor.GOLD + "Source code: " + ChatColor.GREEN + CmdsCommand.SOURCE);
-        sender.sendMessage(ChatColor.GOLD + "Issue tracker: " + ChatColor.GREEN + CmdsCommand.ISSUES);
+        if (args.length > 0 && args[0].equalsIgnoreCase("list")) {
+            this.printCommands(sender);
+        } else {
+            sender.sendMessage(ChatColor.YELLOW + "======" + ChatColor.DARK_PURPLE + "=== CMDS ===" + ChatColor.YELLOW + "======");
+            sender.sendMessage(ChatColor.YELLOW + CmdsCommand.DESCRIPTION);
+            sender.sendMessage(ChatColor.GOLD + "Version: " + ChatColor.GREEN + this.getVersion());
+            sender.sendMessage(ChatColor.GOLD + "Authors: " + ChatColor.GREEN + "TheMolkaPL");
+            sender.sendMessage(ChatColor.GOLD + "Source code: " + ChatColor.GREEN + CmdsCommand.SOURCE);
+            sender.sendMessage(ChatColor.GOLD + "Issue tracker: " + ChatColor.GREEN + CmdsCommand.ISSUES);
+        }
     }
     
     private String getVersion() {
         return Settings.VERSION;
+    }
+    
+    private void printCommands(CommandSender sender) {
+        sender.sendMessage(ChatColor.YELLOW + "======" + ChatColor.DARK_PURPLE + "=== Command List ===" + ChatColor.YELLOW + "======");
+        sender.sendMessage(ChatColor.GREEN + "You have access to the following commands:");
+        
+        for (Command command : Commands.getCommands()) {
+            if (!command.hasPermission() || sender.hasPermission(command.getPermission())) {
+                sender.sendMessage(ChatColor.GREEN + "/" + command.getName() + ChatColor.GOLD + " - " + command.getDescription());
+            }
+        }
     }
 }
