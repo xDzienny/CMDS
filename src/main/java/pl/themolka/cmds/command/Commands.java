@@ -16,10 +16,9 @@
 package pl.themolka.cmds.command;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.Validate;
@@ -35,14 +34,22 @@ import pl.themolka.cmds.Settings;
  * @author Aleksander
  */
 public class Commands {
-    private static final SortedMap<String, Command> commands = new TreeMap<>();
+    private static final List<Command> commands = new ArrayList<>();
     
     public static Command getCommand(String alias) {
         Validate.notNull(alias, "alias can not be null");
-        if (commands.containsKey(alias.toLowerCase())) {
-            return commands.get(alias.toLowerCase());
+        for (Command command : getCommands()) {
+            for (String al : command.getAliases()) {
+                if (al.equalsIgnoreCase(alias)) {
+                    return command;
+                }
+            }
         }
         return null;
+    }
+    
+    public static List<Command> getCommands() {
+        return commands;
     }
     
     public static void perform(String command, CommandSender sender, String[] args) {
@@ -100,12 +107,7 @@ public class Commands {
         for (Class<? extends Command> cmdClass : command) {
             try {
                 Command cmd = cmdClass.newInstance();
-                
-                for (String alias : cmd.getAliases()) {
-                    if (!commands.containsKey(alias.toLowerCase())) {
-                        commands.put(alias.toLowerCase(), cmd);
-                    }
-                }
+                commands.add(cmd);
                 
                 org.bukkit.command.Command bCommand = new CommandPerformer(BukkitCommandExecutor.getInstance(), cmd.getName());
                 bCommand.setAliases(Arrays.asList(cmd.getAliases()));
