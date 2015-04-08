@@ -16,6 +16,9 @@
 package pl.themolka.cmds.packet;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.Validate;
@@ -62,19 +65,31 @@ public abstract class Packet {
         return name.substring(name.lastIndexOf(".") + 1);
     }
     
-    public static boolean sendPacket(Player player, Packet packet) {
+    public static boolean sendPacket(Player player, Packet... packets) {
         Validate.notNull(player, "player can not be null");
-        Validate.notNull(packet, "packet can not be null");
-        Object handle = packet.handle();
-        if (handle == null) {
-            return false;
-        }
+        Validate.notNull(packets, "packets can not be null");
         
+        List<Object> toSend = new ArrayList<>();
+        for (Packet packet : packets) {
+            Object handle = packet.handle();
+            if (handle != null) {
+                toSend.add(handle);
+            }
+        }
+        sendNMSPackets(player, toSend);
+        return true;
+    }
+    
+    private static boolean sendNMSPackets(Player player, List<Object> packets) {
         try {
+            long init = System.nanoTime();
             Object craftPlayer = getOBCClass("entity.CraftPlayer").cast(player);
-            Object craftHandle = craftPlayer.getClass().getDeclaredMethod("getHandle", new Class[] {}).invoke(craftPlayer, new Object[] {});
-            Object connection = craftHandle.getClass().getDeclaredField("playerConnection").get(craftHandle);
-            connection.getClass().getDeclaredMethod("sendPacket", getNMSClass("Packet")).invoke(connection, handle);
+            Object craftHandle = craftPlayer.getClass().getMethod("getHandle").invoke(craftPlayer);
+            Object connection = craftHandle.getClass().getField("playerConnection").get(craftHandle);
+            Method sendPacket = connection.getClass().getMethod("sendPacket", getNMSClass("Packet"));
+            for (Object packet : packets) {
+                sendPacket.invoke(connection, packet);
+            }
             return true;
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException ex) {
             Logger.getLogger(Packet.class.getName()).log(Level.SEVERE, null, ex);
